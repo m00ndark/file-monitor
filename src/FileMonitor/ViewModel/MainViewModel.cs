@@ -1,5 +1,6 @@
 using System;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -53,14 +54,20 @@ namespace FileMonitor.ViewModel
 				.GroupBy(file => file.Path)
 				.OrderBy(fileGroup => fileGroup.Key))
 			{
-				FileGroupViewModel fileGroupViewModel = new FileGroupViewModel { Path = fileGroup.Key };
+				FileGroupViewModel fileGroupViewModel = new FileGroupViewModel(fileGroup.Key, Delete);
 				FileGroups.Add(fileGroupViewModel);
 
 				foreach (var file in fileGroup)
 				{
-					fileGroupViewModel.Files.Add(new FileViewModel { Name = file.Name });
+					fileGroupViewModel.AddFile(file.Name);
 				}
 			}
+		}
+
+		private void Delete(string filePath)
+		{
+			//File.Delete(filePath);
+			Debug.WriteLine(filePath);
 		}
 	}
 }

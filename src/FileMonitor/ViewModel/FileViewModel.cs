@@ -1,12 +1,14 @@
+using System;
 using System.Windows.Input;
 
 namespace FileMonitor.ViewModel
 {
 	public class FileViewModel : ViewModelBase
 	{
-		public FileViewModel()
+		public FileViewModel(string name, Action<FileViewModel> delete)
 		{
-			DeleteCommand = new RelayCommand(Delete);
+			Name = name;
+			DeleteCommand = new RelayCommand(() => delete(this));
 		}
 
 		public ICommand DeleteCommand { get; }
@@ -15,10 +17,6 @@ namespace FileMonitor.ViewModel
 		{
 			get => Get<string>();
 			set => Set(value);
-		}
-
-		private void Delete()
-		{
 		}
 	}
 }
