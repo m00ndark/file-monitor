@@ -1,0 +1,138 @@
+<Window
+	x:Class="FileMonitor.MainWindow"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:local="clr-namespace:FileMonitor"
+	xmlns:viewModel="clr-namespace:FileMonitor.ViewModel"
+	mc:Ignorable="d"
+	d:DataContext="{d:DesignInstance viewModel:MainViewModel}"
+	WindowStartupLocation="CenterScreen"
+	Title="File Monitor"
+	Height="850"
+	Width="600"
+	FontFamily="Segoe UI"
+	FontSize="12">
+
+	<Window.Resources>
+		<Style
+			x:Key="ListViewItemStyle"
+			TargetType="{x:Type ListViewItem}">
+			<Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+			<Setter Property="Background" Value="Transparent" />
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="{x:Type ListViewItem}">
+						<ContentPresenter />
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
+
+		<DataTemplate
+			x:Key="FilesTemplate"
+			DataType="{x:Type viewModel:FileViewModel}">
+			<Grid
+				local:Grid.Columns="Auto, *">
+				<TextBlock
+					Grid.Column="1"
+					Margin="35, 0, 5, 0"
+					VerticalAlignment="Center"
+					Text="{Binding Name}"/>
+				<Button
+					Grid.Column="0"
+					Width="80"
+					Margin="2 2 0 2"
+					BorderBrush="DarkGray"
+					Content="Delete"
+					Command="{Binding DeleteCommand}"/>
+			</Grid>
+		</DataTemplate>
+
+		<DataTemplate
+			x:Key="FileGroupsTemplate"
+			DataType="{x:Type viewModel:FileGroupViewModel}">
+			<Border
+				Margin="3 0 3 0"
+				Padding="0 2 0 2"
+				BorderThickness="0 0 0 1"
+				BorderBrush="DarkGray">
+				<Grid
+					local:Grid.Rows="Auto, Auto"
+					local:Grid.Columns="Auto, *">
+					<TextBlock
+						Grid.Column="1"
+						Grid.Row="0"
+						Margin="5, 0, 5, 0"
+						VerticalAlignment="Center"
+						FontWeight="Bold"
+						Text="{Binding Path}"/>
+					<Button
+						Grid.Column="0"
+						Grid.Row="0"
+						Width="80"
+						Margin="3 3 0 1"
+						BorderBrush="DarkGray"
+						Background="SandyBrown"
+						Content="Delete All"
+						Command="{Binding DeleteAllCommand}"/>
+
+					<ListView
+						Grid.Column="0"
+						Grid.Row="1"
+						Grid.ColumnSpan="2"
+						BorderThickness="0"
+						ItemsSource="{Binding Files}"
+						ItemTemplate="{StaticResource FilesTemplate}"
+						ItemContainerStyle="{StaticResource ListViewItemStyle}"/>
+				</Grid>
+			</Border>
+		</DataTemplate>
+	</Window.Resources>
+
+	<Grid
+		local:Grid.Rows="Auto, *">
+
+		<Grid
+			local:Grid.Columns="Auto, *, Auto"
+			Grid.Row="0">
+
+			<TextBlock
+				Grid.Column="0"
+				Margin="5"
+				VerticalAlignment="Center"
+				Text="Filter:"/>
+			<TextBox
+				Grid.Column="1"
+				Margin="0 5 0 5"
+				Text="{Binding Filter}"/>
+			<Button
+				Grid.Column="2"
+				Margin="5"
+				Padding="15 2 15 2"
+				BorderBrush="DarkGray"
+				Content="Scan"
+				Command="{Binding ScanCommand}"/>
+		</Grid>
+
+		<Grid
+			local:Grid.Rows="*"
+			Grid.Row="1">
+
+			<Border
+				Margin="5 0 5 5"
+				BorderThickness="1"
+				CornerRadius="2"
+				BorderBrush="DimGray">
+
+				<ListView
+					BorderThickness="0"
+					ItemsSource="{Binding FileGroups}"
+					ItemTemplate="{StaticResource FileGroupsTemplate}"
+					ItemContainerStyle="{StaticResource ListViewItemStyle}"/>
+			</Border>
+		</Grid>
+	</Grid>
+
+</Window>
