@@ -49,10 +49,8 @@ namespace FileMonitor.ViewModel
 
 
 			foreach (var fileGroup in Directory.EnumerateFiles(rootPath, extension, SearchOption.AllDirectories)
-				.Select(filePath => new { Path = Path.GetDirectoryName(filePath) + @"\", Name = Path.GetFileName(filePath) })
-				.Where(file => Regex.IsMatch(file.Path, pathPattern))
-				.GroupBy(file => file.Path)
-				.OrderBy(fileGroup => fileGroup.Key))
+				.Where(filePath => Regex.IsMatch(Path.GetDirectoryName(filePath) + @"\", pathPattern))
+				.Traverse())
 			{
 				FileGroupViewModel fileGroupViewModel = new FileGroupViewModel(fileGroup.Key, Delete);
 				FileGroups.Add(fileGroupViewModel);

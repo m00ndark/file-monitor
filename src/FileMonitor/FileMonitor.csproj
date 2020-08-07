@@ -16,4 +16,12 @@
     <IntermediateOutputPath>..\..\build\obj\</IntermediateOutputPath>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove="Resources\remove.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\remove.png" />
+  </ItemGroup>
+
 </Project>

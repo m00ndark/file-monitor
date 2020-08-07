@@ -35,18 +35,22 @@
 			DataType="{x:Type viewModel:FileViewModel}">
 			<Grid
 				local:Grid.Columns="Auto, *">
-				<TextBlock
-					Grid.Column="1"
-					Margin="35, 0, 5, 0"
-					VerticalAlignment="Center"
-					Text="{Binding Name}"/>
 				<Button
 					Grid.Column="0"
-					Width="80"
 					Margin="2 2 0 2"
-					BorderBrush="DarkGray"
-					Content="Delete"
-					Command="{Binding DeleteCommand}"/>
+					BorderThickness="0"
+					Background="Transparent"
+					Command="{Binding DeleteCommand}">
+					<Image
+						Source="Resources/remove.png"
+						Width="16"
+						Height="16"/>
+				</Button>
+				<TextBlock
+					Grid.Column="1"
+					Margin="20, 0, 5, 0"
+					VerticalAlignment="Center"
+					Text="{Binding Name}"/>
 			</Grid>
 		</DataTemplate>
 
@@ -61,6 +65,18 @@
 				<Grid
 					local:Grid.Rows="Auto, Auto"
 					local:Grid.Columns="Auto, *">
+					<Button
+						Grid.Column="0"
+						Grid.Row="0"
+						Margin="3 3 0 1"
+						BorderThickness="0"
+						Background="Moccasin"
+						Command="{Binding DeleteAllCommand}">
+						<Image
+							Source="Resources/remove.png"
+							Width="16"
+							Height="16"/>
+					</Button>
 					<TextBlock
 						Grid.Column="1"
 						Grid.Row="0"
@@ -68,15 +84,6 @@
 						VerticalAlignment="Center"
 						FontWeight="Bold"
 						Text="{Binding Path}"/>
-					<Button
-						Grid.Column="0"
-						Grid.Row="0"
-						Width="80"
-						Margin="3 3 0 1"
-						BorderBrush="DarkGray"
-						Background="SandyBrown"
-						Content="Delete All"
-						Command="{Binding DeleteAllCommand}"/>
 
 					<ListView
 						Grid.Column="0"
