@@ -14,7 +14,7 @@ namespace FileMonitor.ViewModel
 		public MainViewModel()
 		{
 			ScanCommand = new RelayCommand(Scan);
-			FileGroups = new ObservableCollection<FileGroupViewModel>();
+			Nodes = new ObservableCollection<TreeViewModel>();
 		}
 
 		public ICommand ScanCommand { get; }
@@ -25,11 +25,11 @@ namespace FileMonitor.ViewModel
 			set => Set(value);
 		}
 
-		public ObservableCollection<FileGroupViewModel> FileGroups { get; }
+		public ObservableCollection<TreeViewModel> Nodes { get; }
 
 		private void Scan()
 		{
-			FileGroups.Clear();
+			Nodes.Clear();
 
 			Match match = Regex.Match(Filter, @"^(?<path>(?<root>\w\:\\[^\*]*)(?:\*\*\\)*[^\*]*)(?<ext>\*\..+)$");
 
@@ -47,25 +47,18 @@ namespace FileMonitor.ViewModel
 			string rootPath = match.Groups["root"].Value;
 			string extension = match.Groups["ext"].Value;
 
-
-			foreach (var fileGroup in Directory.EnumerateFiles(rootPath, extension, SearchOption.AllDirectories)
+			foreach (Node node in Directory.EnumerateFiles(rootPath, extension, SearchOption.AllDirectories)
 				.Where(filePath => Regex.IsMatch(Path.GetDirectoryName(filePath) + @"\", pathPattern))
 				.Traverse())
 			{
-				FileGroupViewModel fileGroupViewModel = new FileGroupViewModel(fileGroup.Key, Delete);
-				FileGroups.Add(fileGroupViewModel);
-
-				foreach (var file in fileGroup)
-				{
-					fileGroupViewModel.AddFile(file.Name);
-				}
+				Nodes.Add(new FolderViewModel(node.Compact(), Delete));
 			}
 		}
 
-		private void Delete(string filePath)
+		private void Delete(Node node)
 		{
 			//File.Delete(filePath);
-			Debug.WriteLine(filePath);
+			Debug.WriteLine(node.FullPath);
 		}
 	}
 }

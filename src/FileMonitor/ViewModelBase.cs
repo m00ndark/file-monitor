@@ -13,9 +13,6 @@ namespace FileMonitor
 
 		public event PropertyChangedEventHandler PropertyChanged;
 
-		/// <summary>
-		/// Gets the property value.
-		/// </summary>
 		protected T Get<T>([CallerMemberName] string name = "")
 		{
 			return GetProperty<T>(name);
@@ -78,7 +75,8 @@ namespace FileMonitor
 		[DebuggerStepThrough]
 		private void VerifyPropertyName(string propertyName)
 		{
-			if (GetType().GetProperties().FirstOrDefault(x => x.Name == propertyName) == null)
+			if (!string.IsNullOrEmpty(propertyName)
+				&& GetType().GetProperties().FirstOrDefault(x => x.Name == propertyName) == null)
 			{
 				throw new ArgumentException(propertyName + " is not a property on this view model", nameof(propertyName));
 			}

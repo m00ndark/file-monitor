@@ -10,92 +10,127 @@
 	d:DataContext="{d:DesignInstance viewModel:MainViewModel}"
 	WindowStartupLocation="CenterScreen"
 	Title="File Monitor"
-	Height="850"
-	Width="600"
+	Height="900"
+	Width="500"
 	FontFamily="Segoe UI"
 	FontSize="12">
 
 	<Window.Resources>
-		<Style
-			x:Key="ListViewItemStyle"
-			TargetType="{x:Type ListViewItem}">
-			<Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-			<Setter Property="Background" Value="Transparent" />
-			<Setter Property="Template">
+		<Style x:Key="TreeViewItemFocusVisual">
+			<Setter Property="Control.Template">
 				<Setter.Value>
-					<ControlTemplate TargetType="{x:Type ListViewItem}">
-						<ContentPresenter />
+					<ControlTemplate>
+						<Rectangle/>
 					</ControlTemplate>
 				</Setter.Value>
 			</Setter>
 		</Style>
 
-		<DataTemplate
-			x:Key="FilesTemplate"
-			DataType="{x:Type viewModel:FileViewModel}">
-			<Grid
-				local:Grid.Columns="Auto, *">
-				<Button
-					Grid.Column="0"
-					Margin="2 2 0 2"
-					BorderThickness="0"
-					Background="Transparent"
-					Command="{Binding DeleteCommand}">
-					<Image
-						Source="Resources/remove.png"
-						Width="16"
-						Height="16"/>
-				</Button>
-				<TextBlock
-					Grid.Column="1"
-					Margin="20, 0, 5, 0"
-					VerticalAlignment="Center"
-					Text="{Binding Name}"/>
-			</Grid>
-		</DataTemplate>
+		<PathGeometry x:Key="TreeArrow" Figures="M0,0 L0,6 L6,0 z"/>
 
-		<DataTemplate
-			x:Key="FileGroupsTemplate"
-			DataType="{x:Type viewModel:FileGroupViewModel}">
-			<Border
-				Margin="3 0 3 0"
-				Padding="0 2 0 2"
-				BorderThickness="0 0 0 1"
-				BorderBrush="DarkGray">
-				<Grid
-					local:Grid.Rows="Auto, Auto"
-					local:Grid.Columns="Auto, *">
-					<Button
-						Grid.Column="0"
-						Grid.Row="0"
-						Margin="3 3 0 1"
-						BorderThickness="0"
-						Background="Moccasin"
-						Command="{Binding DeleteAllCommand}">
-						<Image
-							Source="Resources/remove.png"
-							Width="16"
-							Height="16"/>
-					</Button>
-					<TextBlock
-						Grid.Column="1"
-						Grid.Row="0"
-						Margin="5, 0, 5, 0"
-						VerticalAlignment="Center"
-						FontWeight="Bold"
-						Text="{Binding Path}"/>
+		<Style x:Key="ExpandCollapseToggleStyle" TargetType="{x:Type ToggleButton}">
+			<Setter Property="Focusable" Value="False"/>
+			<Setter Property="Width" Value="16"/>
+			<Setter Property="Height" Value="16"/>
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="{x:Type ToggleButton}">
+						<Border Width="16" Height="16" Background="Transparent" Padding="5,5,5,5">
+							<Path x:Name="ExpandPath" Fill="Transparent" Stroke="#FF989898" Data="{StaticResource TreeArrow}">
+								<Path.RenderTransform>
+									<RotateTransform Angle="135" CenterX="3" CenterY="3"/>
+								</Path.RenderTransform>
+							</Path>
+						</Border>
+						<ControlTemplate.Triggers>
+							<Trigger Property="IsMouseOver" Value="True">
+								<Setter Property="Stroke" TargetName="ExpandPath" Value="#FF1BBBFA"/>
+								<Setter Property="Fill" TargetName="ExpandPath" Value="Transparent"/>
+							</Trigger>
+							<Trigger Property="IsChecked" Value="True">
+								<Setter Property="RenderTransform" TargetName="ExpandPath">
+									<Setter.Value>
+										<RotateTransform Angle="180" CenterX="3" CenterY="3"/>
+									</Setter.Value>
+								</Setter>
+								<Setter Property="Fill" TargetName="ExpandPath" Value="#FF595959"/>
+								<Setter Property="Stroke" TargetName="ExpandPath" Value="#FF262626"/>
+							</Trigger>
+						</ControlTemplate.Triggers>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
+		<Style x:Key="StretchableTreeViewItemStyle" TargetType="{x:Type TreeViewItem}">
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="HorizontalContentAlignment" Value="{Binding Path=HorizontalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"/>
+			<Setter Property="VerticalContentAlignment" Value="{Binding Path=VerticalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"/>
+			<Setter Property="Padding" Value="1,0,0,0"/>
+			<Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
+			<Setter Property="FocusVisualStyle" Value="{StaticResource TreeViewItemFocusVisual}"/>
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="{x:Type TreeViewItem}">
+						<ControlTemplate.Resources>
+							<local:LeftMarginMultiplierConverter Length="19" x:Key="LengthConverter" />
+						</ControlTemplate.Resources>
+						<StackPanel>
+							<Border Name="Bd"
+								Background="{TemplateBinding Background}"
+								BorderBrush="{TemplateBinding BorderBrush}"
+								BorderThickness="{TemplateBinding BorderThickness}"
+								Padding="{TemplateBinding Padding}">
+								<Grid Margin="{Binding Converter={StaticResource LengthConverter}, RelativeSource={RelativeSource TemplatedParent}}">
 
-					<ListView
-						Grid.Column="0"
-						Grid.Row="1"
-						Grid.ColumnSpan="2"
-						BorderThickness="0"
-						ItemsSource="{Binding Files}"
-						ItemTemplate="{StaticResource FilesTemplate}"
-						ItemContainerStyle="{StaticResource ListViewItemStyle}"/>
-				</Grid>
-			</Border>
-		</DataTemplate>
+									<Grid.ColumnDefinitions>
+										<ColumnDefinition Width="19" />
+										<ColumnDefinition />
+									</Grid.ColumnDefinitions>
+									<ToggleButton x:Name="Expander"
+										Style="{StaticResource ExpandCollapseToggleStyle}"
+										IsChecked="{Binding Path=IsExpanded, RelativeSource={RelativeSource TemplatedParent}}"
+										ClickMode="Press"/>
+
+									<ContentPresenter x:Name="PART_Header"
+										Grid.Column="1"
+										ContentSource="Header"
+										HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"/>
+								</Grid>
+							</Border>
+							<ItemsPresenter x:Name="ItemsHost" />
+						</StackPanel>
+						<ControlTemplate.Triggers>
+							<Trigger Property="local:TreeViewMouseOverHelper.IsMouseDirectlyOverItem" Value="True">
+								<Setter Property="Background" TargetName="Bd" Value="LightSteelBlue" />
+							</Trigger>
+							<Trigger Property="IsExpanded" Value="false">
+								<Setter Property="Visibility" TargetName="ItemsHost" Value="Collapsed"/>
+							</Trigger>
+							<Trigger Property="HasItems" Value="false">
+								<Setter Property="Visibility" TargetName="Expander" Value="Hidden"/>
+							</Trigger>
+							<Trigger Property="IsSelected" Value="true">
+								<Setter Property="Background" TargetName="Bd" Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}"/>
+								<Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.HighlightTextBrushKey}}"/>
+							</Trigger>
+							<MultiTrigger>
+								<MultiTrigger.Conditions>
+									<Condition Property="IsSelected" Value="true"/>
+									<Condition Property="IsSelectionActive" Value="false"/>
+								</MultiTrigger.Conditions>
+								<Setter Property="Background" TargetName="Bd" Value="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
+								<Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
+							</MultiTrigger>
+							<Trigger Property="IsEnabled" Value="false">
+								<Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
+							</Trigger>
+						</ControlTemplate.Triggers>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+
+			<Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
+		</Style>
 	</Window.Resources>
 
 	<Grid
@@ -133,11 +168,67 @@
 				CornerRadius="2"
 				BorderBrush="DimGray">
 
-				<ListView
+				<TreeView
 					BorderThickness="0"
-					ItemsSource="{Binding FileGroups}"
-					ItemTemplate="{StaticResource FileGroupsTemplate}"
-					ItemContainerStyle="{StaticResource ListViewItemStyle}"/>
+					ItemsSource="{Binding Nodes}"
+					HorizontalContentAlignment="Stretch"
+					ItemContainerStyle="{StaticResource StretchableTreeViewItemStyle}">
+
+					<TreeView.Resources>
+						<HierarchicalDataTemplate
+							DataType="{x:Type viewModel:FolderViewModel}"
+							ItemsSource="{Binding Nodes}">
+
+							<Grid
+								local:Grid.Columns="*, Auto">
+
+								<TextBlock
+									Grid.Column="0"
+									VerticalAlignment="Center"
+									Text="{Binding Name}" />
+
+								<Button
+									Grid.Column="1"
+									Grid.Row="0"
+									Margin="3 3 0 1"
+									BorderThickness="0"
+									Background="Moccasin"
+									Command="{Binding DeleteCommand}">
+									<Image
+										Source="Resources/remove.png"
+										Width="16"
+										Height="16"/>
+								</Button>
+							</Grid>
+						</HierarchicalDataTemplate>
+
+						<DataTemplate
+							DataType="{x:Type viewModel:FileViewModel}" >
+
+							<Grid
+								local:Grid.Columns="*, Auto">
+
+								<TextBlock
+									Grid.Column="0"
+									VerticalAlignment="Center"
+									Text="{Binding Name}" />
+
+								<Button
+									Grid.Column="1"
+									Grid.Row="0"
+									Margin="3 3 0 1"
+									BorderThickness="0"
+									Background="Transparent"
+									Command="{Binding DeleteCommand}">
+									<Image
+										Source="Resources/remove.png"
+										Width="16"
+										Height="16"/>
+								</Button>
+							</Grid>
+						</DataTemplate>
+					</TreeView.Resources>
+				</TreeView>
 			</Border>
 		</Grid>
 	</Grid>
